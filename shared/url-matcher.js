@@ -37,7 +37,7 @@ var UrlMatcher = (function () {
     }
 
     // path check
-    var pathRegex = new RegExp('^' + escapeRegexExceptWildcards(path).replace(/\\\*/g, '.*') + '$');
+    var pathRegex = new RegExp('^' + escapeRegexExceptWildcards(path).replace(/\*/g, '.*') + '$');
     var urlPath = parsedUrl.pathname + (parsedUrl.search || '') + (parsedUrl.hash || '');
     if (!pathRegex.test(urlPath)) return false;
 
@@ -63,8 +63,8 @@ var UrlMatcher = (function () {
 
     // Glob: * matches anything, ? matches one char
     var escaped = escapeRegexExceptWildcards(pattern)
-      .replace(/\\\*/g, '.*')
-      .replace(/\\\?/g, '.');
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.');
     try {
       var globRe = new RegExp('^' + escaped + '$');
       return globRe.test(url);
