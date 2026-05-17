@@ -28,22 +28,11 @@ function runAtToApiValue(runAt) {
 }
 
 function injectScript(tabId, script) {
-  browser.tabs.sendMessage(tabId, {
-    type: 'EXECUTE_SCRIPT',
-    code: script.code
-  }).catch(function () {
-    // Content script not ready yet — fall back to executeScript
-    browser.tabs.executeScript(tabId, {
-      code: '(' + function (code) {
-        var s = document.createElement('script');
-        s.textContent = code;
-        (document.head || document.documentElement).appendChild(s);
-        s.remove();
-      }.toString() + ')(' + JSON.stringify(script.code) + ')',
-      runAt: runAtToApiValue(script.runAt)
-    }).catch(function (err) {
-      console.warn('[ScriptsAddon] Injection failed for', script.name, err);
-    });
+  browser.tabs.executeScript(tabId, {
+    code: script.code,
+    runAt: runAtToApiValue(script.runAt)
+  }).catch(function (err) {
+    console.warn('[ScriptsAddon] Injection failed for', script.name, err);
   });
 }
 
