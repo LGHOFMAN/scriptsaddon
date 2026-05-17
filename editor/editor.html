@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Script Editor — ScriptsAddon</title>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <div class="editor-layout">
+    <header>
+      <h1 id="page-title">Add Script</h1>
+      <div class="header-actions">
+        <button id="btn-save">Save</button>
+        <button id="btn-cancel" class="secondary">Cancel</button>
+      </div>
+    </header>
+
+    <details class="hint-box" id="hint">
+      <summary>Metadata syntax reference</summary>
+      <pre>// ==UserScript==
+// @name        My Script
+// @description What it does
+// @match       https://example.com/*
+// @match       https://*.site.com/*
+// @include     *://example.org/*
+// @exclude     https://example.com/skip/*
+// @version     1.0
+// @run-at      document-idle  (or document-start / document-end)
+// ==/UserScript==</pre>
+    </details>
+
+    <div class="editor-body">
+      <textarea id="code-editor" spellcheck="false" placeholder="Paste your userscript here..."></textarea>
+    </div>
+
+    <div id="meta-preview">
+      <div id="meta-preview-content">
+        <span class="meta-hint">Start typing to see parsed metadata…</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/metadata-parser.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>
