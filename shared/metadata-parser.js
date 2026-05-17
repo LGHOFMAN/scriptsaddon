@@ -28,6 +28,9 @@ var MetadataParser = (function () {
       runAt = 'document-idle';
     }
 
+    var allFrames = (meta['all-frames'] || '').toLowerCase() === 'true';
+    var delay = Math.max(0, parseInt(meta['delay'] || '0', 10) || 0);
+
     return {
       name: meta['name'] || 'Unnamed Script',
       description: meta['description'] || '',
@@ -39,7 +42,9 @@ var MetadataParser = (function () {
       excludes: meta['exclude'] || [],
       requires: meta['require'] || [],
       grants: meta['grant'] || [],
-      runAt: runAt
+      runAt: runAt,
+      allFrames: allFrames,
+      delay: delay
     };
   }
 

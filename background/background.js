@@ -28,15 +28,27 @@ function runAtToApiValue(runAt) {
 }
 
 function injectScript(tabId, script) {
-  console.log('[ScriptsAddon] Injecting "' + script.name + '" into tab', tabId, '(runAt:', script.runAt + ')');
-  browser.tabs.executeScript(tabId, {
-    code: script.code,
-    runAt: runAtToApiValue(script.runAt)
-  }).then(function () {
-    console.log('[ScriptsAddon] Injected "' + script.name + '" successfully');
-  }).catch(function (err) {
-    console.warn('[ScriptsAddon] Injection FAILED for "' + script.name + '":', err.message || err);
-  });
+  var delay = script.delay || 0;
+  console.log('[ScriptsAddon] Injecting "' + script.name + '" into tab', tabId,
+    '(runAt:', script.runAt + ', allFrames:', !!script.allFrames + ', delay:', delay + 'ms)');
+
+  function doInject() {
+    browser.tabs.executeScript(tabId, {
+      code: script.code,
+      runAt: runAtToApiValue(script.runAt),
+      allFrames: !!script.allFrames
+    }).then(function () {
+      console.log('[ScriptsAddon] Injected "' + script.name + '" successfully');
+    }).catch(function (err) {
+      console.warn('[ScriptsAddon] Injection FAILED for "' + script.name + '":', err.message || err);
+    });
+  }
+
+  if (delay > 0) {
+    setTimeout(doInject, delay);
+  } else {
+    doInject();
+  }
 }
 
 function handleTabUpdate(tabId, changeInfo, tab) {
