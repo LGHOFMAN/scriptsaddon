@@ -26,11 +26,25 @@
 // @exclude     https://example.com/skip/*
 // @version     1.0
 // @run-at      document-idle  (or document-start / document-end)
+// @all-frames  true           (inject into iframes too)
+// @delay       2000           (wait N ms before running)
 // ==/UserScript==</pre>
     </details>
 
     <div class="editor-body">
       <textarea id="code-editor" spellcheck="false" placeholder="Paste your userscript here..."></textarea>
+    </div>
+
+    <div id="script-options">
+      <label class="opt-label">
+        <input type="checkbox" id="opt-all-frames">
+        <span>Inject in all frames</span>
+      </label>
+      <label class="opt-label delay-label">
+        <span>Delay:</span>
+        <input type="number" id="opt-delay" min="0" step="500" value="0">
+        <span>ms</span>
+      </label>
     </div>
 
     <div id="meta-preview">

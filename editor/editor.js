@@ -4,6 +4,8 @@
   var pageTitle = document.getElementById('page-title');
   var btnSave = document.getElementById('btn-save');
   var btnCancel = document.getElementById('btn-cancel');
+  var optAllFrames = document.getElementById('opt-all-frames');
+  var optDelay = document.getElementById('opt-delay');
 
   var scriptId = null;
   var originalCode = '';
@@ -25,10 +27,16 @@
       return;
     }
 
+    // Sync UI controls from metadata directives (only when a directive is explicitly set)
+    if (meta.allFrames) optAllFrames.checked = true;
+    if (meta.delay > 0) optDelay.value = meta.delay;
+
     var tags = [];
     tags.push(tag('name', meta.name));
     if (meta.version) tags.push(tag('v', meta.version));
     tags.push(tag('run-at', meta.runAt));
+    if (meta.allFrames) tags.push(tag('frames', 'all'));
+    if (meta.delay > 0) tags.push(tag('delay', meta.delay + 'ms'));
 
     var patterns = meta.matches.concat(meta.includes);
     if (patterns.length === 0) {
@@ -101,6 +109,8 @@
       includes: meta.includes,
       excludes: meta.excludes,
       runAt: meta.runAt,
+      allFrames: optAllFrames.checked,
+      delay: Math.max(0, parseInt(optDelay.value, 10) || 0),
       enabled: true,
       code: code
     };
@@ -142,6 +152,8 @@
         codeEditor.value = found.code;
         originalCode = found.code;
         pageTitle.textContent = 'Edit Script: ' + found.name;
+        optAllFrames.checked = !!found.allFrames;
+        optDelay.value = found.delay || 0;
         renderMetaPreview(found.code);
       } else {
         pageTitle.textContent = 'Script not found';
