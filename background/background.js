@@ -28,11 +28,14 @@ function runAtToApiValue(runAt) {
 }
 
 function injectScript(tabId, script) {
+  console.log('[ScriptsAddon] Injecting "' + script.name + '" into tab', tabId, '(runAt:', script.runAt + ')');
   browser.tabs.executeScript(tabId, {
     code: script.code,
     runAt: runAtToApiValue(script.runAt)
+  }).then(function () {
+    console.log('[ScriptsAddon] Injected "' + script.name + '" successfully');
   }).catch(function (err) {
-    console.warn('[ScriptsAddon] Injection failed for', script.name, err);
+    console.warn('[ScriptsAddon] Injection FAILED for "' + script.name + '":', err.message || err);
   });
 }
 
@@ -43,8 +46,12 @@ function handleTabUpdate(tabId, changeInfo, tab) {
   var status = changeInfo.status;
   if (status !== 'loading' && status !== 'complete') return;
 
+  console.log('[ScriptsAddon] Tab update — status:', status, 'url:', url, '| scripts in cache:', scriptCache.length);
+
   scriptCache.forEach(function (script) {
-    if (!UrlMatcher.scriptMatchesUrl(script, url)) return;
+    var matches = UrlMatcher.scriptMatchesUrl(script, url);
+    console.log('[ScriptsAddon]  script "' + script.name + '" enabled=' + script.enabled + ' matches=' + matches);
+    if (!matches) return;
 
     var runAt = script.runAt || 'document-idle';
     var shouldRunNow = false;
@@ -54,6 +61,8 @@ function handleTabUpdate(tabId, changeInfo, tab) {
     } else if (status === 'complete') {
       shouldRunNow = (runAt === 'document-end' || runAt === 'document-idle');
     }
+
+    console.log('[ScriptsAddon]  → shouldRunNow=' + shouldRunNow + ' (runAt=' + runAt + ', status=' + status + ')');
 
     if (shouldRunNow) {
       injectScript(tabId, script);
