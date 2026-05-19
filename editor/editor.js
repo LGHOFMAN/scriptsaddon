@@ -22,8 +22,16 @@
 
   function renderMetaPreview(code) {
     var meta = MetadataParser.parseMetadata(code);
+    while (metaPreviewContent.firstChild) metaPreviewContent.removeChild(metaPreviewContent.firstChild);
+
     if (!meta) {
-      metaPreviewContent.innerHTML = '<span class="meta-hint">No metadata block found — add <code>// ==UserScript== ... // ==/UserScript==</code></span>';
+      var hint = document.createElement('span');
+      hint.className = 'meta-hint';
+      hint.textContent = 'No metadata block found — add ';
+      var codeEl = document.createElement('code');
+      codeEl.textContent = '// ==UserScript== ... // ==/UserScript==';
+      hint.appendChild(codeEl);
+      metaPreviewContent.appendChild(hint);
       return;
     }
 
@@ -31,42 +39,41 @@
     if (meta.allFrames) optAllFrames.checked = true;
     if (meta.delay > 0) optDelay.value = meta.delay;
 
-    var tags = [];
-    tags.push(tag('name', meta.name));
-    if (meta.version) tags.push(tag('v', meta.version));
-    tags.push(tag('run-at', meta.runAt));
-    if (meta.allFrames) tags.push(tag('frames', 'all'));
-    if (meta.delay > 0) tags.push(tag('delay', meta.delay + 'ms'));
+    metaPreviewContent.appendChild(makeTag('name', meta.name));
+    if (meta.version) metaPreviewContent.appendChild(makeTag('v', meta.version));
+    metaPreviewContent.appendChild(makeTag('run-at', meta.runAt));
+    if (meta.allFrames) metaPreviewContent.appendChild(makeTag('frames', 'all'));
+    if (meta.delay > 0) metaPreviewContent.appendChild(makeTag('delay', meta.delay + 'ms'));
 
     var patterns = meta.matches.concat(meta.includes);
     if (patterns.length === 0) {
-      tags.push(errorTag('No @match or @include patterns'));
+      metaPreviewContent.appendChild(makeErrorTag('No @match or @include patterns'));
     } else {
       patterns.slice(0, 4).forEach(function (p) {
-        tags.push(tag('match', p));
+        metaPreviewContent.appendChild(makeTag('match', p));
       });
       if (patterns.length > 4) {
-        tags.push(tag('…', '+' + (patterns.length - 4) + ' more'));
+        metaPreviewContent.appendChild(makeTag('…', '+' + (patterns.length - 4) + ' more'));
       }
     }
-
-    metaPreviewContent.innerHTML = tags.join('');
   }
 
-  function tag(label, value) {
-    return '<span class="meta-tag"><span class="label">' + esc(label) + ':</span>' + esc(value) + '</span>';
+  function makeTag(label, value) {
+    var span = document.createElement('span');
+    span.className = 'meta-tag';
+    var labelSpan = document.createElement('span');
+    labelSpan.className = 'label';
+    labelSpan.textContent = label + ':';
+    span.appendChild(labelSpan);
+    span.appendChild(document.createTextNode(String(value)));
+    return span;
   }
 
-  function errorTag(msg) {
-    return '<span class="meta-tag error">' + esc(msg) + '</span>';
-  }
-
-  function esc(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+  function makeErrorTag(msg) {
+    var span = document.createElement('span');
+    span.className = 'meta-tag error';
+    span.textContent = msg;
+    return span;
   }
 
   codeEditor.addEventListener('input', function () {

@@ -33,30 +33,50 @@
 
       var matchSummary = (script.matches || []).concat(script.includes || []).slice(0, 2).join(', ') || 'No URL patterns';
 
-      li.innerHTML =
-        '<label class="toggle">' +
-          '<input type="checkbox"' + (script.enabled ? ' checked' : '') + '>' +
-          '<span class="slider"></span>' +
-        '</label>' +
-        '<div class="script-info">' +
-          '<div class="script-name">' + escHtml(script.name) + '</div>' +
-          '<div class="script-meta">' + escHtml(matchSummary) + '</div>' +
-        '</div>' +
-        '<button class="btn-icon edit-btn">Edit</button>' +
-        '<button class="btn-icon delete delete-btn">Del</button>';
+      var toggleLabel = document.createElement('label');
+      toggleLabel.className = 'toggle';
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = !!script.enabled;
+      var slider = document.createElement('span');
+      slider.className = 'slider';
+      toggleLabel.appendChild(checkbox);
+      toggleLabel.appendChild(slider);
 
-      var checkbox = li.querySelector('input[type=checkbox]');
+      var scriptInfo = document.createElement('div');
+      scriptInfo.className = 'script-info';
+      var scriptName = document.createElement('div');
+      scriptName.className = 'script-name';
+      scriptName.textContent = script.name;
+      var scriptMeta = document.createElement('div');
+      scriptMeta.className = 'script-meta';
+      scriptMeta.textContent = matchSummary;
+      scriptInfo.appendChild(scriptName);
+      scriptInfo.appendChild(scriptMeta);
+
+      var editBtn = document.createElement('button');
+      editBtn.className = 'btn-icon edit-btn';
+      editBtn.textContent = 'Edit';
+      var deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-icon delete delete-btn';
+      deleteBtn.textContent = 'Del';
+
+      li.appendChild(toggleLabel);
+      li.appendChild(scriptInfo);
+      li.appendChild(editBtn);
+      li.appendChild(deleteBtn);
+
       checkbox.addEventListener('change', function () {
         var enabled = checkbox.checked;
         li.classList.toggle('disabled', !enabled);
         browser.runtime.sendMessage({ type: 'TOGGLE_SCRIPT', id: script.id, enabled: enabled });
       });
 
-      li.querySelector('.edit-btn').addEventListener('click', function () {
+      editBtn.addEventListener('click', function () {
         openEditor(script.id);
       });
 
-      li.querySelector('.delete-btn').addEventListener('click', function () {
+      deleteBtn.addEventListener('click', function () {
         if (!confirm('Delete "' + script.name + '"?')) return;
         browser.runtime.sendMessage({ type: 'DELETE_SCRIPT', id: script.id }).then(loadScripts);
       });
@@ -69,14 +89,6 @@
     browser.runtime.sendMessage({ type: 'GET_SCRIPTS' }).then(function (resp) {
       renderScripts(resp.scripts || []);
     });
-  }
-
-  function escHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
   }
 
   browser.storage.onChanged.addListener(function (changes) {
