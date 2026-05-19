@@ -1,8 +1,19 @@
 {
   "manifest_version": 2,
   "name": "ScriptsAddon",
-  "description": "Run custom userscripts on specific websites",
+  "description": "Run custom userscripts on specific websites — write, manage, and execute JavaScript on any page you choose.",
   "version": "1.0.0",
+  "homepage_url": "https://github.com/lghofman/scriptsaddon",
+  "developer": {
+    "name": "lghofman",
+    "url": "https://github.com/lghofman"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "scriptsaddon@lghofman",
+      "strict_min_version": "91.0"
+    }
+  },
   "permissions": [
     "storage",
     "tabs",

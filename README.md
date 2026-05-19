@@ -1,0 +1,143 @@
+# ScriptsAddon
+
+A Firefox browser extension that lets you write, manage, and run custom JavaScript (userscripts) on any website — similar to Tampermonkey or Greasemonkey, but self-contained and without external dependencies.
+
+## Features
+
+- **Full UserScript metadata support** — `@match`, `@include`, `@exclude`, `@run-at`, `@all-frames`, `@delay`, and more
+- **Tampermonkey-compatible URL matching** — wildcard patterns and regex via `@include`/`@exclude`
+- **Run-at timing control** — `document-start`, `document-end`, or `document-idle`
+- **Per-script enable/disable toggle** — without deleting the script
+- **All-frames injection** — optionally run scripts inside iframes
+- **Injection delay** — add an optional delay (ms) before a script executes
+- **Live metadata preview** — the editor parses your header block in real time
+- **Dark UI** — popup and editor use a clean dark theme
+
+## Installation
+
+### From a release (recommended)
+
+1. Download the latest `.xpi` file from the [Releases](../../releases) page.
+2. In Firefox, open `about:addons` (or `Extensions` from the menu).
+3. Click the gear icon → **Install Add-on From File…**
+4. Select the downloaded `.xpi` and confirm.
+
+### From source
+
+```bash
+git clone https://github.com/lghofman/scriptsaddon.git
+cd scriptsaddon
+```
+
+Then load as a temporary add-on for development (see [Development](#development)).
+
+## Building
+
+Requires `zip` (available on macOS/Linux; use WSL or 7-Zip on Windows).
+
+```bash
+bash build.sh
+```
+
+This produces `dist/scriptsaddon-<version>.xpi` — a signed-ready zip of the extension files.
+
+## Development
+
+1. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…**
+3. Select the `manifest.json` file inside this repository.
+4. The extension is now active for this browser session.
+
+To reload after code changes: click **Reload** next to the extension on `about:debugging`.
+
+## Writing a UserScript
+
+Click the **ScriptsAddon** toolbar button, then **+ Add Script**. The editor opens with a starter template:
+
+```js
+// ==UserScript==
+// @name        My Script
+// @description What this script does
+// @match       https://example.com/*
+// @version     1.0
+// @run-at      document-idle
+// ==/UserScript==
+
+(function () {
+  'use strict';
+  // Your code here
+})();
+```
+
+### Supported metadata fields
+
+| Field | Description |
+|---|---|
+| `@name` | Display name shown in the popup |
+| `@description` | Short description |
+| `@version` | Version string |
+| `@author` | Author name |
+| `@namespace` | Namespace URL (informational) |
+| `@match` | URL pattern (Tampermonkey format) — can appear multiple times |
+| `@include` | Glob or `/regex/flags` pattern — can appear multiple times |
+| `@exclude` | Like `@include`, but excludes matching URLs — takes priority |
+| `@run-at` | `document-start`, `document-end`, or `document-idle` (default) |
+| `@all-frames` | `true` to inject into iframes as well |
+| `@delay` | Milliseconds to wait before executing (e.g. `500`) |
+
+### URL pattern syntax (`@match`)
+
+Follows the `<scheme>://<host>/<path>` format with wildcard `*`:
+
+```
+https://example.com/*          — all pages on example.com
+*://example.com/*              — http and https
+https://*.example.com/*        — all subdomains
+<all_urls>                     — every URL
+```
+
+### Glob / regex patterns (`@include` / `@exclude`)
+
+```
+*://example.com/*              — glob wildcard
+/^https:\/\/example\.com/i     — JavaScript regex (wrapped in slashes)
+```
+
+## Project Structure
+
+```
+scriptsaddon/
+├── manifest.json              # Extension manifest (v2)
+├── background/
+│   └── background.js          # Script storage, tab monitoring, injection
+├── content/
+│   └── injector.js            # Content script — executes injected code
+├── editor/
+│   ├── editor.html
+│   ├── editor.js              # Script editor with live metadata preview
+│   └── editor.css
+├── popup/
+│   ├── popup.html
+│   ├── popup.js               # Script list, toggle, delete
+│   └── popup.css
+├── shared/
+│   ├── metadata-parser.js     # Parses UserScript header blocks
+│   └── url-matcher.js         # Tampermonkey-compatible URL matching
+├── icons/
+│   ├── icon-48.png
+│   └── icon-96.png
+└── build.sh                   # Packages the extension into a .xpi
+```
+
+## Permissions
+
+| Permission | Why |
+|---|---|
+| `storage` | Save and load your scripts |
+| `tabs` | Detect page navigation to know when to inject |
+| `activeTab` | Read the current tab's URL |
+| `<all_urls>` | Inject scripts on any website you configure |
+
+## License
+
+MIT
