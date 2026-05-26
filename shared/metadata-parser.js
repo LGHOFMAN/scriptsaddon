@@ -1,5 +1,5 @@
 var MetadataParser = (function () {
-  var MULTI_VALUE_KEYS = ['match', 'include', 'exclude', 'require', 'resource', 'grant'];
+  var MULTI_VALUE_KEYS = ['match', 'include', 'exclude', 'require', 'resource', 'grant', 'connect'];
 
   function parseMetadata(code) {
     var blockMatch = code.match(/\/\/ ==UserScript==([\s\S]*?)\/\/ ==\/UserScript==/);
@@ -42,6 +42,7 @@ var MetadataParser = (function () {
       excludes: meta['exclude'] || [],
       requires: meta['require'] || [],
       grants: meta['grant'] || [],
+      connects: meta['connect'] || [],
       runAt: runAt,
       allFrames: allFrames,
       delay: delay

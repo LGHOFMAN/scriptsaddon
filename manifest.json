@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "ScriptsAddon",
   "description": "Run custom userscripts on specific websites — write, manage, and execute JavaScript on any page you choose.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage_url": "https://github.com/lghofman/scriptsaddon",
   "developer": {
     "name": "lghofman",
@@ -28,6 +28,7 @@
     "scripts": [
       "shared/metadata-parser.js",
       "shared/url-matcher.js",
+      "shared/gm-shim.js",
       "background/background.js"
     ],
     "persistent": true

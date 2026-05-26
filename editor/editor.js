@@ -45,6 +45,18 @@
     if (meta.allFrames) metaPreviewContent.appendChild(makeTag('frames', 'all'));
     if (meta.delay > 0) metaPreviewContent.appendChild(makeTag('delay', meta.delay + 'ms'));
 
+    if (meta.grants && meta.grants.length) {
+      meta.grants.forEach(function (g) {
+        metaPreviewContent.appendChild(makeTag('grant', g));
+      });
+    }
+
+    if (meta.connects && meta.connects.length) {
+      meta.connects.forEach(function (c) {
+        metaPreviewContent.appendChild(makeTag('connect', c));
+      });
+    }
+
     var patterns = meta.matches.concat(meta.includes);
     if (patterns.length === 0) {
       metaPreviewContent.appendChild(makeErrorTag('No @match or @include patterns'));
@@ -104,7 +116,7 @@
     var meta = MetadataParser.parseMetadata(code);
     if (!meta) {
       if (!confirm('No metadata block found. The script will never run automatically (no @match patterns). Save anyway?')) return;
-      meta = { name: 'Unnamed Script', description: '', version: '1.0', matches: [], includes: [], excludes: [], runAt: 'document-idle' };
+      meta = { name: 'Unnamed Script', description: '', version: '1.0', matches: [], includes: [], excludes: [], grants: [], connects: [], runAt: 'document-idle' };
     }
 
     var script = {
@@ -115,6 +127,8 @@
       matches: meta.matches,
       includes: meta.includes,
       excludes: meta.excludes,
+      grants: meta.grants || [],
+      connects: meta.connects || [],
       runAt: meta.runAt,
       allFrames: optAllFrames.checked,
       delay: Math.max(0, parseInt(optDelay.value, 10) || 0),

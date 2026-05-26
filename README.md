@@ -4,7 +4,8 @@ A Firefox browser extension that lets you write, manage, and run custom JavaScri
 
 ## Features
 
-- **Full UserScript metadata support** — `@match`, `@include`, `@exclude`, `@run-at`, `@all-frames`, `@delay`, and more
+- **Full UserScript metadata support** — `@match`, `@include`, `@exclude`, `@run-at`, `@all-frames`, `@delay`, `@grant`, `@connect`, and more
+- **Tampermonkey-compatible GM APIs** — `GM_xmlhttpRequest`, `GM_setValue`, and `GM_getValue` for cross-origin requests and per-script storage
 - **Tampermonkey-compatible URL matching** — wildcard patterns and regex via `@include`/`@exclude`
 - **Run-at timing control** — `document-start`, `document-end`, or `document-idle`
 - **Per-script enable/disable toggle** — without deleting the script
@@ -84,6 +85,30 @@ Click the **ScriptsAddon** toolbar button, then **+ Add Script**. The editor ope
 | `@run-at` | `document-start`, `document-end`, or `document-idle` (default) |
 | `@all-frames` | `true` to inject into iframes as well |
 | `@delay` | Milliseconds to wait before executing (e.g. `500`) |
+| `@grant` | GM API to expose — can appear multiple times (see [GM APIs](#gm-apis)) |
+| `@connect` | Allowed host for `GM_xmlhttpRequest` — can appear multiple times |
+
+### GM APIs
+
+ScriptsAddon supports a subset of Tampermonkey's `@grant` APIs. Add the grants your script needs in the metadata block:
+
+```js
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_xmlhttpRequest
+// @connect      api.example.com
+```
+
+| Grant | Description |
+|---|---|
+| `GM_setValue` | Store a per-script value (persisted in extension storage) |
+| `GM_getValue` | Read a per-script value synchronously (cached at injection time) |
+| `GM_xmlhttpRequest` | Make cross-origin HTTP requests via the extension background |
+| `none` | No GM APIs injected — script runs as plain JavaScript |
+
+**`@connect`** restricts which hosts `GM_xmlhttpRequest` may call when present. Supports exact hostnames (`api.openai.com`), wildcard subdomains (`*.openai.com`), and `*`. If no `@connect` entries are listed, all hosts are allowed (the extension already has `<all_urls>` permission).
+
+Other GM APIs (`GM_addStyle`, `GM_notification`, `unsafeWindow`, etc.) are not yet supported.
 
 ### URL pattern syntax (`@match`)
 
@@ -122,7 +147,8 @@ scriptsaddon/
 │   └── popup.css
 ├── shared/
 │   ├── metadata-parser.js     # Parses UserScript header blocks
-│   └── url-matcher.js         # Tampermonkey-compatible URL matching
+│   ├── url-matcher.js         # Tampermonkey-compatible URL matching
+│   └── gm-shim.js             # GM API preamble injected before scripts
 ├── icons/
 │   ├── icon-48.png
 │   └── icon-96.png
